@@ -145,7 +145,7 @@ jobs:
 
         sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml
 
-        # sed "s/RDS.ENDPOINT/'"$RDS_ENDPOINT"'/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+        sed "s/RDS.ENDPOINT/'"$RDS_ENDPOINT"'/g" ./deployment/manifests-templates/external-service.yaml
 
 
         # sed "s/IMAGE.NAME/$IMAGE_NAME/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
