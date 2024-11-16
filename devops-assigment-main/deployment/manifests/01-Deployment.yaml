@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata: 
+  name: myflask-deployment
+spec: 
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myflask
+  template:  
+    metadata: 
+      name: myflask-pod
+      labels: 
+        app: myflask  
+    spec:
+      containers: 
+        - name: myflask-container
+          image: 971422681412.dkr.ecr.ap-southeast-1.amazonaws.com/onebyzero/flask-app:1
+          ports:
+            - containerPort: 5000   
