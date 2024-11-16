@@ -29,7 +29,15 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
     - name: View Terraform Changes
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: make preview-infra
     - name: Deploy Terraform Infra
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: make deploy-infra
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
