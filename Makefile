@@ -1,13 +1,13 @@
 .PHONY: preview-infra deploy-infra build-image push-image deploy-container
 
 preview-infra:
-	terraform -chdir=infra/terraform init
-	terraform -chdir=infra/terraform validate
-	terraform -chdir=infra/terraform plan -input=false
+	terraform -chdir=infra/terraform -var="rds_db_name=$DB_NAME" -var="rds_username=$DB_USERNAME" -var="rds_password=$DB_PASSWORD" init
+	terraform -chdir=infra/terraform -var="rds_db_name=$DB_NAME" -var="rds_username=$DB_USERNAME" -var="rds_password=$DB_PASSWORD" validate
+	terraform -chdir=infra/terraform -var="rds_db_name=$DB_NAME" -var="rds_username=$DB_USERNAME" -var="rds_password=$DB_PASSWORD" plan
 
 
 deploy-infra:
-	terraform -chdir=infra/terraform apply -auto-approve -input=false
+	terraform -chdir=infra/terraform -var="rds_db_name=$DB_NAME" -var="rds_username=$DB_USERNAME" -var="rds_password=$DB_PASSWORD" apply -auto-approve
 
 build-image:
 	aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS \ 		
