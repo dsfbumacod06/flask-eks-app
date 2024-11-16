@@ -1,8 +1,8 @@
 .PHONY: preview-infra deploy-infra build-image push-image deploy-container
 
 preview-infra:
-	terraform -chdir=infra/terraform -var="rds_db_name=$(DB_NAME)" -var="rds_username=$(DB_USERNAME)" -var="rds_password=$(DB_PASSWORD)" init
-	terraform -chdir=infra/terraform -var="rds_db_name=$(DB_NAME)" -var="rds_username=$(DB_USERNAME)" -var="rds_password=$(DB_PASSWORD)" validate
+	terraform -chdir=infra/terraform init
+	terraform -chdir=infra/terraform validate
 	terraform -chdir=infra/terraform -var="rds_db_name=$(DB_NAME)" -var="rds_username=$(DB_USERNAME)" -var="rds_password=$(DB_PASSWORD)" plan
 
 
