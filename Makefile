@@ -3,7 +3,7 @@
 preview-infra:
 	terraform -chdir=infra/terraform init
 	terraform -chdir=infra/terraform validate
-	terraform -chdir=infra/terraform -var="rds_db_name=$(DB_NAME)" -var="rds_username=$(DB_USERNAME)" -var="rds_password=$(DB_PASSWORD)" plan
+	terraform -chdir=infra/terraform plan -var="rds_db_name=$(DB_NAME)" -var="rds_username=$(DB_USERNAME)" -var="rds_password=$(DB_PASSWORD)"
 
 
 deploy-infra:
