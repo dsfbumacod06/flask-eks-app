@@ -36,7 +36,7 @@ jobs:
       run: |
         make deploy-infra
         # export rds endpoint to be used in deployment
-        DB_ENDPOINT=$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/:5432//; s/.*= "//; s/"//')
+        DB_ENDPOINT=$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/')
         echo "RDS_ENDPOINT=$DB_ENDPOINT"
         echo "RDS_ENDPOINT=$DB_ENDPOINT" > workflow-artifact.txt
 
