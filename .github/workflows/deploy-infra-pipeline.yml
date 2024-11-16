@@ -116,8 +116,11 @@ jobs:
         echo "$(cat workflow-artifact.txt)"
         echo "cluster name"
         echo "$(cat workflow-artifact.txt | grep 'EKS_CLUSTER_NAME')"
+        echo "$(cat workflow-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $GITHUB_ENV
         echo "rds endpoint"
         echo "$(cat workflow-artifact.txt | grep 'RDS_ENDPOINT')"
+        echo "$(cat workflow-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
+
         # echo "$(cat workflow-artifact.txt | grep 'IMAGE_NAME')"
         # export $(cat workflow-artifact.txt | grep -v '^#' | xargs)
         # # set -a
@@ -131,22 +134,22 @@ jobs:
 
 
 
-    # - name: Configure AWS Credentials
-    #   uses: aws-actions/configure-aws-credentials@v4
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: ${{ secrets.AWS_REGION_VALUE }}
-    # - name: Get kubectl
-    #   run: |
-    #     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    #     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-    #     echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-    #     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-    #     kubectl version --client
-    # - name: Initialize kubeconfig
-    #   run: 
-    #     aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name 
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION_VALUE }}
+    - name: Get kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+        echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        kubectl version --client
+    - name: Initialize kubeconfig
+      run: 
+        aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
     # - name: Create Manifests
     #   env:
     #     IMAGE_NAME: 
