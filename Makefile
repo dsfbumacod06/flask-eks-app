@@ -1,7 +1,10 @@
-deploy-infra:
+preview-infra:
 	terraform -chdir=infra/terraform init
 	terraform -chdir=infra/terraform validate
 	terraform -chdir=infra/terraform plan -input=false
+
+
+deploy-infra:
 	terraform -chdir=infra/terraform apply -auto-approve -input=false
 
 build-image:
