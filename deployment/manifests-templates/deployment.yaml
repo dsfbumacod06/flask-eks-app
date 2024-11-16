@@ -15,6 +15,6 @@ spec:
     spec:
       containers: 
         - name: myflask-container
-          image: {IMAGE_NAME}
+          image: IMAGE.NAME
           ports:
             - containerPort: 5000
