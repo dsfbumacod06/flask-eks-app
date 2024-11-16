@@ -45,59 +45,60 @@ jobs:
         name: workflow-artifact
         path: workflow-artifact.txt
 
-  deploy-image:
-    name: Deploy Image To ECR
-    runs-on: ubuntu-latest
-    needs: deploy-infra
-    environment: dev
-    defaults:
-      run:
-        shell: bash
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Download artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: workflow-artifact
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION_VALUE }}
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-    - name: Build, and tag image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-      run: 
-        make build-image
-    - name: Push image to Amazon ECR
-      id: push-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-      run: | 
-        make push-image
-        IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
-        echo "IMAGE_NAME=$IMAGE_NAME"
-        echo "IMAGE_NAME=$IMAGE_NAME" >> workflow-artifact.txt
-    - name: Upload image artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: workflow-artifact
-        path: workflow-artifact.txt
+  # deploy-image:
+  #   name: Deploy Image To ECR
+  #   runs-on: ubuntu-latest
+  #   needs: deploy-infra
+  #   environment: dev
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+  #   - name: Download artifact
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: workflow-artifact
+  #   - name: Configure AWS Credentials
+  #     uses: aws-actions/configure-aws-credentials@v4
+  #     with:
+  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #       aws-region: ${{ secrets.AWS_REGION_VALUE }}
+  #   - name: Login to Amazon ECR
+  #     id: login-ecr
+  #     uses: aws-actions/amazon-ecr-login@v1
+  #   - name: Build, and tag image to Amazon ECR
+  #     id: build-image
+  #     env:
+  #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #       IMAGE_TAG: ${{ github.sha }}
+  #       ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+  #     run: 
+  #       make build-image
+  #   - name: Push image to Amazon ECR
+  #     id: push-image
+  #     env:
+  #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #       IMAGE_TAG: ${{ github.sha }}
+  #       ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+  #     run: | 
+  #       make push-image
+  #       IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+  #       echo "IMAGE_NAME=$IMAGE_NAME"
+  #       echo "IMAGE_NAME=$IMAGE_NAME" >> workflow-artifact.txt
+  #   - name: Upload image artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: workflow-artifact
+  #       path: workflow-artifact.txt
 
   deploy-container:
     name: Deploy container to EKS
     runs-on: ubuntu-latest
-    needs: deploy-image
+    # needs: deploy-image
+    needs: deploy-infra
     environment: dev
     defaults:
       run:
@@ -112,7 +113,7 @@ jobs:
     - name: Extract artifact
       run: |
         echo "$(cat workflow-artifact.txt)"
-        export $(grep -v '^#' workflow-artifact.txt | xargs)
+        export $(cat workflow-artifact.txt | grep -v '^#' | xargs)
         # set -a
         # source workflow-artifact.txt
         # set +a
