@@ -1,10 +1,10 @@
 name: 'Terraform Infrastrucure Deployment'
 on:
   push:
-    paths: 'infra/terraform'
+    paths: 'infra/terraform/**'
     branches: [ "main" ]
   pull_request:
-    paths: 'infra/terraform'
+    paths: 'infra/terraform/**'
     branches: [ "main" ]
 permissions:
   contents: read
