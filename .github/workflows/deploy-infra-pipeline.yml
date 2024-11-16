@@ -136,21 +136,15 @@ jobs:
       run: 
         aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
     - name: Create Manifests
-      run: 
-        make create-manifests
-        # echo "$(cat ./deployment/manifests-templates/deployment.yaml |sed 's/IMAGE.NAME/$IMAGE_NAME/g')"
-        # echo "$RDS_ENDPOINT"
+      run: |
+        # make create-manifests
+        echo "$RDS_ENDPOINT"
+        echo "$IMAGE_NAME"
 
-        # sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml
+        sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
 
+        sed "s/IMAGE.NAME/$IMAGE_NAME/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
 
-
-        # sed "s/IMAGE.NAME/$IMAGE_NAME/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
-
-        # sed "s/IMAGE.NAME/$IMAGE_NAME/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
-        # cat ./deployment/manifests/deployment.yaml
-        # sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
-        # cat ./deployment/manifests/external-service.yaml
     - name: deploy-container
       run: 
         make deploy-container
