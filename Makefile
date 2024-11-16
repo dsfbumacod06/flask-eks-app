@@ -20,9 +20,9 @@ push-image:
 	docker push $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)
 
 create-manifests:
-	sed "s/IMAGE.NAME/$IMAGE_NAME/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
+	sed "s/IMAGE.NAME/$(IMAGE_NAME)/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
 	cat ./deployment/manifests/deployment.yaml
-	sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+	sed "s/RDS.ENDPOINT/$(RDS_ENDPOINT)/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
 	cat ./deployment/manifests/external-service.yaml
 
 deploy-container:
