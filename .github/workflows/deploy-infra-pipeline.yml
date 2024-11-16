@@ -97,8 +97,7 @@ jobs:
   deploy-container:
     name: Deploy container to EKS
     runs-on: ubuntu-latest
-    # needs: deploy-image
-    needs: deploy-infra
+    needs: deploy-image
     environment: dev
     defaults:
       run:
