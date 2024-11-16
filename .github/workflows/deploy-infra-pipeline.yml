@@ -40,4 +40,4 @@ jobs:
         DB_USERNAME: ${{ secrets.DB_USERNAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: make deploy-infra
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      if: github.event_name == 'push'
