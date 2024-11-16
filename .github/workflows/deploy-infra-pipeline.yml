@@ -33,8 +33,8 @@ jobs:
       uses: hashicorp/setup-terraform@v1
     - name: Terraform Init
       run: terraform -chdir=infra/terraform init
-    - name: Terraform Format
-      run: terraform -chdir=infra/terraform fmt -check
+    - name: Terraform Validate
+      run: terraform -chdir=infra/terraform validate
     - name: Terraform Plan
       run: terraform -chdir=infra/terraform plan -input=false
     # - name: Terraform Apply
