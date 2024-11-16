@@ -42,8 +42,10 @@ jobs:
         # export rds endpoint to be used in deployment
         echo "debugging1"
         echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint')"
+        echo "debugging1.5"
+        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint'| sed 's/rds_postsgres_db_endpoint = "//')"
         echo "debugging2"
-        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/')"
+        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/rds_postsgres_db_endpoint = "//' | sed 's/:5432"//')"
         echo "debugging 3"
         echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/'| sed 's/"//')"
 
