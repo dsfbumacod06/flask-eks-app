@@ -1,14 +1,12 @@
-.PHONY: preview-infra deploy-infra build-image push-image deploy-container
+.PHONY: deploy-infra build-image push-image deploy-container
 
-preview-infra:
+deploy-infra:
 	terraform -chdir=infra/terraform init
 	terraform -chdir=infra/terraform validate
 	terraform -chdir=infra/terraform plan \
 		-var="rds_db_name=$(DB_NAME)" \
 		-var="rds_username=$(DB_USERNAME)" \
 		-var="rds_password=$(DB_PASSWORD)"
-
-deploy-infra:
 	terraform -chdir=infra/terraform apply \
 	-var="rds_db_name=$(DB_NAME)" \
 	-var="rds_username=$(DB_USERNAME)" \
