@@ -15,14 +15,11 @@ deploy-infra:
 	-var="rds_password=$(DB_PASSWORD)" \
 	-auto-approve | tee deployment-results.txt
 
-
-
 build-image:
-	docker build -t $(ECR_REGISTRY)/$(ECR_REPOSITORY) app/
-	docker tag $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG) $(ECR_REGISTRY)/$(ECR_REPOSITORY):latest
+	docker build -t $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)  ./app
 
 push-image:
-	docker push $(ECR_REGISTRY)/$(ECR_REPOSITORY):latest
+	docker push $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)
 
 deploy-container:
 # Add a command line to deploy the container on the AWS EKS setup as part of infrastructure deployment
