@@ -1,8 +1,10 @@
 name: 'Terraform Infrastrucure Deployment'
 on:
   push:
+    paths: 'infra/terraform'
     branches: [ "main" ]
   pull_request:
+    paths: 'infra/terraform'
     branches: [ "main" ]
 permissions:
   contents: read
@@ -16,7 +18,6 @@ jobs:
       run:
         shell: bash
     steps:
-    # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v4
     - name: Configure AWS Credentials
@@ -29,12 +30,5 @@ jobs:
       uses: hashicorp/setup-terraform@v1
     - name: Deploy Terraform
       run: make deploy-infra
-    # - name: Terraform Init
-    #   run: terraform -chdir=infra/terraform init
-    # - name: Terraform Validate
-    #   run: terraform -chdir=infra/terraform validate
-    # - name: Terraform Plan
-    #   run: terraform -chdir=infra/terraform plan -input=false
-    # - name: Terraform Apply
     #   if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
     #   run: terraform apply -auto-approve -input=false
