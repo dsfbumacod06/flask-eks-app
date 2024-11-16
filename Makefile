@@ -7,7 +7,7 @@ preview-infra:
 
 
 deploy-infra:
-	terraform -chdir=infra/terraform -var="rds_db_name=$(DB_NAME)" -var="rds_username=$(DB_USERNAME)" -var="rds_password=$(DB_PASSWORD)" apply -auto-approve
+	terraform -chdir=infra/terraform apply -var="rds_db_name=$(DB_NAME)" -var="rds_username=$(DB_USERNAME)" -var="rds_password=$(DB_PASSWORD)" -auto-approve
 
 build-image:
 	aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS \ 		
