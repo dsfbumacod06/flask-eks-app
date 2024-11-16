@@ -4,6 +4,7 @@ deploy-infra:
 # terraform -chdir={path} plan
 # terraform -chdir={path} apply --auto-aprove --no-imput
 # some line to test workflow trigger
+# some line to test workflow trigger
 
 build-image:
 # aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 971422681412.dkr.ecr.ap-southeast-1.amazonaws.com
