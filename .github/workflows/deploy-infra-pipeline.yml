@@ -141,9 +141,9 @@ jobs:
       run: 
         # echo "$(cat ./deployment/manifests-templates/deployment.yaml |sed 's/IMAGE.NAME/$IMAGE_NAME/g')"
 
-        sed "s/RDS.ENDPOINT/$RDS_ENDPOIN/g" ./deployment/manifests-templates/external-service.yaml
+        sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml
 
-        sed "s/RDS.ENDPOINT/$RDS_ENDPOIN/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+        sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
 
 
         # sed "s/IMAGE.NAME/$IMAGE_NAME/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
@@ -152,9 +152,9 @@ jobs:
         # cat ./deployment/manifests/deployment.yaml
         # sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
         # cat ./deployment/manifests/external-service.yaml
-    - name: deploy-container
-      run: 
-        make deploy-container
+    # - name: deploy-container
+    #   run: 
+    #     make deploy-container
 
 
 
