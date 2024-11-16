@@ -10,8 +10,3 @@ output "rds_postsgres_db_port" {
   value = module.rds.db_instance_port
 }
 
-
-
-
-
-

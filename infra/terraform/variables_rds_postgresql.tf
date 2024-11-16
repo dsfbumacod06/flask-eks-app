@@ -65,8 +65,3 @@ variable "rds_manage_password" {
   default = false
 }
 
-
-
-
-
-
