@@ -1,12 +1,12 @@
 name: 'Terraform Infrastrucure Deployment'
-# on:
-#   push:
-#     branches: [ "main" ]
-#   pull_request:
-#     branches: [ "main" ]
-# permissions:
-#   contents: read
-# jobs:
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+permissions:
+  contents: read
+jobs:
 #   deploy-infra:
 #     name: 'Terraform'
 #     runs-on: ubuntu-latest
