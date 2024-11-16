@@ -112,10 +112,10 @@ jobs:
     - name: Extract artifact
       run: |
         echo "$(cat workflow-artifact.txt)"
-
-        set -a
-        source workflow-artifact.txt
-        set +a
+        export $(grep -v '^#' workflow-artifact.txt | xargs)
+        # set -a
+        # source workflow-artifact.txt
+        # set +a
 
         echo "$RDS_ENDPOINT"
         echo "$IMAGE_NAME"
@@ -142,8 +142,8 @@ jobs:
     #     aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name 
     # - name: Create Manifests
     #   env:
-    #     IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
-    #     RDS_ENDPOINT: ${{ steps.extract.outputs.RDS_ENDPOINT }}
+    #     IMAGE_NAME: 
+    #     RDS_ENDPOINT: 
     #   run: 
     #     make create-manifests
     # - name: deploy-container
