@@ -35,108 +35,108 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
         make deploy-infra
-        # CLUSTER_NAME=$(cat deployment-results.txt | grep 'cluster_name' | sed 's/cluster_name = "//' | sed 's/"//')
-        # echo "EKS_CLUSTER_NAME=$CLUSTER_NAME"
-        # echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> workflow-artifact.txt
+        CLUSTER_NAME=$(cat deployment-results.txt | grep 'cluster_name' | sed 's/cluster_name = "//' | sed 's/"//')
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME"
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > workflow-artifact.txt
 
         # export rds endpoint to be used in deployment
-        echo "debugging1"
-        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint')"
-        echo "debugging1.5"
-        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint'| sed 's/rds_postsgres_db_endpoint = "//')"
-        echo "debugging2"
-        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/rds_postsgres_db_endpoint = "//' | sed 's/:5432"//')"
-        echo "debugging 3"
-        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/'| sed 's/"//')"
+        # echo "debugging1"
+        # echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint')"
+        # echo "debugging1.5"
+        # echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint'| sed 's/rds_postsgres_db_endpoint = "//')"
+        # echo "debugging2"
+        # echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/rds_postsgres_db_endpoint = "//' | sed 's/:5432"//')"
+        # echo "debugging 3"
+        # echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/'| sed 's/"//')"
 
-        # DB_ENDPOINT=$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/' | sed 's/"//')
-        # echo "RDS_ENDPOINT=$DB_ENDPOINT"
-        # echo "RDS_ENDPOINT=$DB_ENDPOINT" > workflow-artifact.txt
+        DB_ENDPOINT="$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/rds_postsgres_db_endpoint = "//' | sed 's/:5432"//')"
+        echo "RDS_ENDPOINT=$DB_ENDPOINT"
+        echo "RDS_ENDPOINT=$DB_ENDPOINT" >> workflow-artifact.txt
+        cat workflow-artifact.txt
+    - name: Upload infra artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: workflow-artifact
+        path: workflow-artifact.txt
 
+  deploy-image:
+    name: Deploy Image To ECR
+    runs-on: ubuntu-latest
+    needs: deploy-infra
+    environment: dev
+    outputs: 
+      IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: workflow-artifact
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION_VALUE }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Build, and tag image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+      run: 
+        make build-image
+    - name: Push image to Amazon ECR
+      id: push-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+      run: | 
+        make push-image
+        IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+        echo "IMAGE_NAME=$IMAGE_NAME"
+        echo "IMAGE_NAME=$IMAGE_NAME" >> workflow-artifact.txt
+        echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+        echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
+    - name: Upload image artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: workflow-artifact
+        path: workflow-artifact.txt
 
-  #   - name: Upload infra artifact
-  #     uses: actions/upload-artifact@v3
-  #     with:
-  #       name: workflow-artifact
-  #       path: workflow-artifact.txt
+  deploy-container:
+    name: Deploy container to EKS
+    runs-on: ubuntu-latest
+    needs: deploy-image
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: workflow-artifact
+    - name: Extract artifact
+      run: |
+        cat workflow-artifact.txt
+        set -a
+        source workflow-artifact.txt
+        set +a
 
-  # deploy-image:
-  #   name: Deploy Image To ECR
-  #   runs-on: ubuntu-latest
-  #   needs: deploy-infra
-  #   environment: dev
-  #   outputs: 
-  #     IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
-  #   defaults:
-  #     run:
-  #       shell: bash
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v4
-  #   - name: Download artifact
-  #     uses: actions/download-artifact@v3
-  #     with:
-  #       name: workflow-artifact
-  #   - name: Configure AWS Credentials
-  #     uses: aws-actions/configure-aws-credentials@v4
-  #     with:
-  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #       aws-region: ${{ secrets.AWS_REGION_VALUE }}
-  #   - name: Login to Amazon ECR
-  #     id: login-ecr
-  #     uses: aws-actions/amazon-ecr-login@v1
-  #   - name: Build, and tag image to Amazon ECR
-  #     id: build-image
-  #     env:
-  #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-  #       IMAGE_TAG: ${{ github.sha }}
-  #       ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-  #     run: 
-  #       make build-image
-  #   - name: Push image to Amazon ECR
-  #     id: push-image
-  #     env:
-  #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-  #       IMAGE_TAG: ${{ github.sha }}
-  #       ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-  #     run: | 
-  #       make push-image
-  #       IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
-  #       echo "IMAGE_NAME=$IMAGE_NAME"
-  #       echo "IMAGE_NAME=$IMAGE_NAME" >> workflow-artifact.txt
-  #       echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-  #       echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
-  #   - name: Upload image artifact
-  #     uses: actions/upload-artifact@v3
-  #     with:
-  #       name: workflow-artifact
-  #       path: workflow-artifact.txt
-
-  # deploy-container:
-  #   name: Deploy container to EKS
-  #   runs-on: ubuntu-latest
-  #   needs: deploy-image
-  #   environment: dev
-  #   defaults:
-  #     run:
-  #       shell: bash
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v4
-  #   - name: Download artifact
-  #     uses: actions/download-artifact@v3
-  #     with:
-  #       name: workflow-artifact
-  #   - name: Extract artifact
-  #     run: |
-  #       cat workflow-artifact.txt
-  #       set -a
-  #       source workflow-artifact.txt
-  #       set +a
-
-  #       echo "$RDS_ENDPOINT"
-  #       echo "$IMAGE_NAME"
+        echo "$RDS_ENDPOINT"
+        echo "$IMAGE_NAME"
+        echo "$EKS_CLUSTER_NAME"
 
 
 
