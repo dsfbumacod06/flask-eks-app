@@ -114,25 +114,9 @@ jobs:
       run: |
         echo "all contents"
         echo "$(cat workflow-artifact.txt)"
-        echo "cluster name"
-        echo "$(cat workflow-artifact.txt | grep 'EKS_CLUSTER_NAME')"
         echo "$(cat workflow-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $GITHUB_ENV
-        echo "rds endpoint"
-        echo "$(cat workflow-artifact.txt | grep 'RDS_ENDPOINT')"
         echo "$(cat workflow-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
-
-        # echo "$(cat workflow-artifact.txt | grep 'IMAGE_NAME')"
-        # export $(cat workflow-artifact.txt | grep -v '^#' | xargs)
-        # # set -a
-        # # source workflow-artifact.txt
-        # # set +a
-
-        # echo "$RDS_ENDPOINT"
-        # echo "$IMAGE_NAME"
-        # echo "$EKS_CLUSTER_NAME"
-
-
-
+        echo "$(cat workflow-artifact.txt | grep 'IMAGE_NAME')" >> $GITHUB_ENV
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -150,15 +134,15 @@ jobs:
     - name: Initialize kubeconfig
       run: 
         aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
-    # - name: Create Manifests
-    #   env:
-    #     IMAGE_NAME: 
-    #     RDS_ENDPOINT: 
-    #   run: 
-    #     make create-manifests
-    # - name: deploy-container
-    #   run: 
-    #     make deploy-container
+    - name: Create Manifests
+      env:
+        IMAGE_NAME: 
+        RDS_ENDPOINT: 
+      run: 
+        make create-manifests
+    - name: deploy-container
+      run: 
+        make deploy-container
 
 
 
