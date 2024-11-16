@@ -37,14 +37,15 @@ jobs:
         make deploy-infra
         # export rds endpoint to be used in deployment
         DB_ENDPOINT=$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/:5432//; s/.*= "//; s/"//')
-        echo "RDS_ENDPOINT=$DB_ENDPOINT"
-        echo "RDS_ENDPOINT=$DB_ENDPOINT" >> $GITHUB_ENV
-        echo "RDS_ENDPOINT=$DB_ENDPOINT" >> $GITHUB_OUTPUT
+        echo "RDS_ENDPOINT=$DB_ENDPOINT" > workflow-artifact.txt
 
         CLUSTER_NAME=$(cat deployment-results.txt | grep 'cluster_name' | sed 's/cluster_name = "//' | sed 's/"//')
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME"
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_OUTPUT
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> workflow-artifact.txt
+    - name: Upload infra artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: workflow-artifact
+        path: workflow-artifact.txt
 
   deploy-image:
     name: Deploy Image To ECR
@@ -59,6 +60,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: workflow-artifact
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
@@ -86,8 +91,14 @@ jobs:
         make push-image
         IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
         echo "IMAGE_NAME=$IMAGE_NAME"
+        echo "IMAGE_NAME=$IMAGE_NAME" >> workflow-artifact.txt
         echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
         echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
+    - name: Upload image artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: workflow-artifact
+        path: workflow-artifact.txt
 
   deploy-container:
     name: Deploy container to EKS
@@ -100,31 +111,48 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
+    - name: Download artifact
+      uses: actions/download-artifact@v3
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION_VALUE }}
-    - name: Get kubectl
+        name: workflow-artifact
+    - name: Extract artifact
       run: |
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-        echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        kubectl version --client
-    - name: Initialize kubeconfig
-      run: 
-        aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name ${{ steps.extract.outputs.EKS_CLUSTER_NAME }}
-    - name: Create Manifests
-      env:
-        IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
-        RDS_ENDPOINT: ${{ steps.extract.outputs.RDS_ENDPOINT }}
-      run: 
-        make create-manifests
-    - name: deploy-container
-      run: 
-        make deploy-container
+        cat workflow-artifact.txt
+        set -a
+        source workflow-artifact.txt
+        set +a
+
+        echo "$RDS_ENDPOINT"
+        echo "$IMAGE_NAME"
+
+
+
+
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: ${{ secrets.AWS_REGION_VALUE }}
+    # - name: Get kubectl
+    #   run: |
+    #     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    #     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+    #     echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+    #     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    #     kubectl version --client
+    # - name: Initialize kubeconfig
+    #   run: 
+    #     aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name 
+    # - name: Create Manifests
+    #   env:
+    #     IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
+    #     RDS_ENDPOINT: ${{ steps.extract.outputs.RDS_ENDPOINT }}
+    #   run: 
+    #     make create-manifests
+    # - name: deploy-container
+    #   run: 
+    #     make deploy-container
 
 
 
