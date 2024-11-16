@@ -8,12 +8,13 @@ on:
     branches: [ "main" ]
 permissions:
   contents: read
-
 jobs:
   terraform-deployment:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: dev
+    outputs: 
+      RDS_ENDPOINT: ${{ steps.set_output.outputs.my_var }}
     defaults:
       run:
         shell: bash
@@ -39,5 +40,9 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USERNAME: ${{ secrets.DB_USERNAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: make deploy-infra
+      run: |
+        make deploy-infra
+        set DB_ENDPOINT = cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/:5432//; s/.*= "//; s/"//'
+        echo "RDS_ENDPOINT=$(DB_ENDPOINT)"
+        echo "RDS_ENDPOINT=$(DB_ENDPOINT)" >> $(GITHUB_ENV) && echo "::set-output name=my_var::my_value"
       if: github.event_name == 'push'
