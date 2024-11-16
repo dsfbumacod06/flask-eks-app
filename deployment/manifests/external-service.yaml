@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgresql
-spec:
-  type: ExternalName
-  externalName: flask-eks-app-dev-tf-rds-2.cpsumcwugxmn.ap-southeast-1.rds.amazonaws.com # rds endpoint from tf

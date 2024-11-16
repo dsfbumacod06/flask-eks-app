@@ -1,4 +1,4 @@
-.PHONY: deploy-infra build-image push-image deploy-container
+.PHONY: deploy-infra build-image push-image get-kubectl create-manifests deploy-container
 
 deploy-infra:
 	terraform -chdir=infra/terraform init
@@ -19,5 +19,20 @@ build-image:
 push-image:
 	docker push $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)
 
+get-kubectl:
+	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+	echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+	sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+	kubectl version --client
+
+
+create-manifests:
+	sed "s/{IMAGE_NAME}/${{ steps.extract.outputs.IMAGE_NAME }}/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
+	cat ./deployment/manifests/deployment.yaml
+	sed "s/{RDS_ENDPOINT}/${{ steps.extract.outputs.RDS_ENDPOINT }}/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+	cat ./deployment/manifests/external-service.yaml
+
 deploy-container:
-# Add a command line to deploy the container on the AWS EKS setup as part of infrastructure deployment
+	aws eks --region ap-southeast-1 update-kubeconfig --name flask-eks-app-dev-eks-cluster
+	kubectl apply -f ./deployment/manifests

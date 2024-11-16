@@ -15,6 +15,6 @@ spec:
     spec:
       containers: 
         - name: myflask-container
-          image: 971422681412.dkr.ecr.ap-southeast-1.amazonaws.com/onebyzero/flask-app:1
+          image: {IMAGE_NAME}
           ports:
             - containerPort: 5000
