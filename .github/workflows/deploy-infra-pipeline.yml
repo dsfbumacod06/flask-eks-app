@@ -40,9 +40,12 @@ jobs:
         echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> workflow-artifact.txt
 
         # export rds endpoint to be used in deployment
-        DB_ENDPOINT=$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/' | sed 's/"//')
-        echo "RDS_ENDPOINT=$DB_ENDPOINT"
-        echo "RDS_ENDPOINT=$DB_ENDPOINT" > workflow-artifact.txt
+        echo "debugging"
+        echo "$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint')"
+
+        # DB_ENDPOINT=$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/.*= "\(.*\):5432"/\1/' | sed 's/"//')
+        # echo "RDS_ENDPOINT=$DB_ENDPOINT"
+        # echo "RDS_ENDPOINT=$DB_ENDPOINT" > workflow-artifact.txt
 
 
   #   - name: Upload infra artifact
