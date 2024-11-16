@@ -13,7 +13,7 @@ deploy-infra:
 	-var="rds_db_name=$(DB_NAME)" \
 	-var="rds_username=$(DB_USERNAME)" \
 	-var="rds_password=$(DB_PASSWORD)" \
-	-auto-approve > deployment-results.txt
+	-auto-approve | tee deployment-results.txt
 
 
 
