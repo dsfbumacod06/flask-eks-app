@@ -1,8 +1,7 @@
 deploy-infra:
-# Add a command line to deploy the infrastructure on AWS using terrform or AWS CDK
-# terraform -chdir={path} init
-# terraform -chdir={path} plan
-# terraform -chdir={path} apply --auto-aprove --no-imput
+	terraform -chdir=infra/terraform init
+	terraform -chdir=infra/terraform validate
+	terraform -chdir=infra/terraform plan -input=false
 
 build-image:
 # aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 971422681412.dkr.ecr.ap-southeast-1.amazonaws.com
