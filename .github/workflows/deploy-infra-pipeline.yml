@@ -118,6 +118,10 @@ jobs:
         echo "$(cat workflow-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
         echo "$(cat workflow-artifact.txt | grep 'IMAGE_NAME')" >> $GITHUB_ENV
 
+        echo "$EKS_CLUSTER_NAME"
+        echo "$RDS_ENDPOINT"
+        echo "$IMAGE_NAME"
+
     # - name: Configure AWS Credentials
     #   uses: aws-actions/configure-aws-credentials@v4
     #   with:
@@ -140,8 +144,10 @@ jobs:
         RDS_ENDPOINT: 
       run: 
         # echo "$(cat ./deployment/manifests-templates/deployment.yaml |sed 's/IMAGE.NAME/$IMAGE_NAME/g')"
+        echo "$RDS_ENDPOINT"
 
         sed "s/RDS.ENDPOINT/'"$RDS_ENDPOINT"'/g" ./deployment/manifests-templates/external-service.yaml
+        sed "s|RDS.ENDPOINT|$RDS_ENDPOINT|g" ./deployment/manifests-templates/external-service.yaml
 
         sed "s/RDS.ENDPOINT/'"$RDS_ENDPOINT"'/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
 
