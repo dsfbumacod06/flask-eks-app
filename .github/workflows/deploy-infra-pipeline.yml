@@ -13,7 +13,7 @@ jobs:
     environment: dev
     outputs: 
       RDS_ENDPOINT: ${{ steps.extract.outputs.RDS_ENDPOINT }}
-      # CLUSTER_NAME:  ${{ steps.extract.outputs.CLUSTER_NAME }}
+      EKS_CLUSTER_NAME:  ${{ steps.extract.outputs.EKS_CLUSTER_NAME }}
     defaults:
       run:
         shell: bash
@@ -41,10 +41,10 @@ jobs:
         echo "RDS_ENDPOINT=$DB_ENDPOINT" >> $GITHUB_ENV
         echo "RDS_ENDPOINT=$DB_ENDPOINT" >> $GITHUB_OUTPUT
 
-        # DB_ENDPOINT=$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/:5432//; s/.*= "//; s/"//')
-        # echo "RDS_ENDPOINT=$DB_ENDPOINT"
-        # echo "RDS_ENDPOINT=$DB_ENDPOINT" >> $GITHUB_ENV
-        # echo "RDS_ENDPOINT=$DB_ENDPOINT" >> $GITHUB_OUTPUT
+        CLUSTER_NAME=$(cat deployment-results.txt | grep 'cluster_name' | sed 's/cluster_name = "//' | sed 's/"//')
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME"
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_OUTPUT
 
   # deploy-image:
   #   name: Deploy Image To ECR
