@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   deploy-infra:
-    name: 'Terraform'
+    name: Terraform IaC
     runs-on: ubuntu-latest
     environment: dev
     defaults:
@@ -98,7 +98,6 @@ jobs:
     name: Deploy container to EKS
     runs-on: ubuntu-latest
     needs: deploy-image
-    # needs: deploy-infra
     environment: dev
     defaults:
       run:
@@ -112,7 +111,6 @@ jobs:
         name: workflow-artifact
     - name: Extract artifact
       run: |
-        echo "all contents"
         echo "$(cat workflow-artifact.txt)"
         echo "$(cat workflow-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $GITHUB_ENV
         echo "$(cat workflow-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
@@ -137,17 +135,10 @@ jobs:
         aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
     - name: Create Manifests
       run: |
-        # make create-manifests
         echo "$RDS_ENDPOINT"
         echo "$IMAGE_NAME"
-
-        sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml
-
         sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
-
-        sed "s|IMAGE.NAME|$IMAGE_NAME|g" ./deployment/manifests-templates/deployment.yaml
-
-        # sed "s/IMAGE.NAME/$IMAGE_NAME/g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
+        sed "s|IMAGE.NAME|$IMAGE_NAME|g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
 
     - name: deploy-container
       run: 
