@@ -118,6 +118,8 @@ jobs:
         name: workflow-artifact
     - name: Extract artifact
       run: |
+        echo "$(cat workflow-artifact.txt)"
+
         set -a
         source workflow-artifact.txt
         set +a
