@@ -22,6 +22,9 @@ module "eks" {
   cluster_endpoint_private_access = false
   cluster_endpoint_public_access = true
   cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"] // all - for dev only
+  vpc_public_subnets = module.vpc.vpc_public_subnets
+  cluster_role_arn = module.iam.cluster_role_arn
+  node_group_role_arn = module.iam.ng_role_arn
 
   # NODE GROUP
   node_group_name ="${local.resource_prefix}-eks-ng-public"
@@ -34,16 +37,7 @@ module "eks" {
   node_group_scaling_desired = 2
   node_group_update_percent = 50
 
-  depends_on = [
-    # cluster dependencies
-    module.iam.aws_iam_role_policy_attachment.eks-AmazonEKSClusterPolicy,
-    module.iam.aws_iam_role_policy_attachment.eks-AmazonEKSVPCResourceController,
-
-    # node group dependencies
-    module.iam.aws_iam_role_policy_attachment.eks-AmazonEKSWorkerNodePolicy,
-    module.iam.aws_iam_role_policy_attachment.eks-AmazonEKS_CNI_Policy,
-    module.iam.aws_iam_role_policy_attachment.eks-AmazonEC2ContainerRegistryReadOnly,
-  ] 
+  depends_on = [module.iam] 
 }
 
 module "iam" {
@@ -70,6 +64,8 @@ module "rds" {
   rds_major_engine_version = "14"
   rds_muti_az = false
   rds_manage_password = false
+  vpc_id = module.vpc.vpc_id
+  database_subnet_group_name = module.vpc.db_subnet_name
 
   depends_on = [ module.vpc ]
 }

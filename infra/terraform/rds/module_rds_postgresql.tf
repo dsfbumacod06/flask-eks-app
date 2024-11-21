@@ -1,6 +1,6 @@
 resource "aws_security_group" "rds_postgres_sg" {
   name = var.rds_database_security_group_name
-  vpc_id = module.vpc.vpc_id
+  vpc_id = var.vpc_id
 
   ingress {
     from_port = var.rds_port 
@@ -31,7 +31,7 @@ module "rds" {
   publicly_accessible = var.rds_publicly_accessible
   vpc_security_group_ids = [aws_security_group.rds_postgres_sg.id]
   multi_az = var.rds_muti_az
-  db_subnet_group_name = module.vpc.database_subnet_group_name
+  db_subnet_group_name = var.database_subnet_group_name
   family  = var.rds_family
   major_engine_version = var.rds_major_engine_version 
   manage_master_user_password = var.rds_manage_password

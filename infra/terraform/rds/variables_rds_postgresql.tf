@@ -7,12 +7,10 @@ variable "rds_password" {}
 
 variable "rds_name" {
   type = string 
-  default = "tf-rds"
 }
 
 variable "rds_engine" {
   type = string 
-  default = "postgres"
 }
 
 variable "rds_postgres_version" {
@@ -32,7 +30,6 @@ variable "rds_storage_size" {
 
 variable "rds_family" {
   type = string
-  default = "postgres14"
 }
 
 variable "rds_major_engine_version"  {
@@ -52,16 +49,23 @@ variable "rds_muti_az" {
 
 variable "rds_port" {
   type = number
-  default = 5432
 }
 
 variable "rds_database_security_group_name" {
   type = string
-  default = "db_sg"
 }
 
 variable "rds_manage_password" {
   type = bool
   default = false
+}
+
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "database_subnet_group_name" {
+    type = string
 }
 

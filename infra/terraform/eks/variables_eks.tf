@@ -1,7 +1,6 @@
 # EKS CLUSTER
 variable "cluster_name" {
   type = string
-  default = "eks-0"
 }
 
 variable "cluster_service_ipv4_cidr" {
@@ -25,7 +24,18 @@ variable "cluster_endpoint_public_access" {
 
 variable "cluster_endpoint_public_access_cidrs" {
   type = list(string)
-  default = ["0.0.0.0/0"]
+}
+
+variable "vpc_public_subnets" {
+  type = list(string)
+}
+
+variable "cluster_role_arn" {
+  type = string
+}
+
+variable "node_group_role_arn" {
+  type = string
 }
 
 # EKS Public Node Group 
@@ -73,6 +83,8 @@ variable "node_group_update_percent" {
   type = number
   default = 25
 }
+
+
 
 
 

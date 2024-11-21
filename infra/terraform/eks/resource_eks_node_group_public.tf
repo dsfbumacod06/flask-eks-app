@@ -2,9 +2,9 @@
 resource "aws_eks_node_group" "eks_ng_public" {
   cluster_name    = aws_eks_cluster.eks_cluster.name
 
-  node_group_name = "${var.node_group_name}"
-  node_role_arn   = aws_iam_role.eks_nodegroup_role.arn
-  subnet_ids      = module.vpc.public_subnets 
+  node_group_name = var.node_group_name
+  node_role_arn   = var.node_group_role_arn
+  subnet_ids      = var.vpc_public_subnets
   
   ami_type = var.node_group_ami_type
   capacity_type = var.node_group_capacity_type
