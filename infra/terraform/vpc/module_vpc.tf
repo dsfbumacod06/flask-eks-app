@@ -5,7 +5,7 @@ module "vpc" {
   version = "5.15.0"
 
   # VPC Config
-  name = "${local.resource_prefix}-${var.vpc_name}" 
+  name = var.vpc_name
   cidr = var.vpc_cidr_block
   azs = data.aws_availability_zones.available.names
   public_subnets = var.vpc_public_subnets
@@ -14,7 +14,7 @@ module "vpc" {
 
   # RDS Subnets for RDS
   database_subnets = var.vpc_database_subnets
-  database_subnet_group_name = "${local.resource_prefix}-${var.vpc_database_subnet_group_name}"
+  database_subnet_group_name = var.vpc_database_subnet_group_name
   create_database_subnet_group = var.vpc_create_database_subnet_group
   create_database_subnet_route_table = var.vpc_create_database_subnet_route_table
 
@@ -23,6 +23,4 @@ module "vpc" {
 
   enable_dns_hostnames = true
   enable_dns_support   = true
-
-  
 }

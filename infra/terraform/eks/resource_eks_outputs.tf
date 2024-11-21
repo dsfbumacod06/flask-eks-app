@@ -21,13 +21,6 @@ output "cluster_version" {
   value = aws_eks_cluster.eks_cluster.version
 }
 
-output "cluster_iam_role_name" {
-  value = aws_iam_role.eks_cluster_role.name 
-}
-
-output "cluster_iam_role_arn" {
-  value = aws_iam_role.eks_cluster_role.arn
-}
 
 output "cluster_oidc_issuer_url" {
   value = aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
