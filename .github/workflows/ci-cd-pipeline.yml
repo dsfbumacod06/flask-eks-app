@@ -114,13 +114,16 @@ jobs:
         aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "${{ needs.deploy-infra.outputs.EKS_CLUSTER_NAME }}"
     - name: Create Manifests
       run: |
-        echo "$RDS_ENDPOINT"
-        echo "$IMAGE_NAME"
         sed "s/RDS.ENDPOINT/${{ needs.deploy-infra.outputs.RDS_ENDPOINT }}/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+
+        cat ./deployment/manifests/external-service.yaml
+
         sed "s|IMAGE.NAME|$${{ needs.deploy-image.outputs.FLASK_IMAGE }}|g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
-    - name: deploy-container
-      run: 
-        make deploy-container
+
+        cat ./deployment/manifests/deployment.yaml
+    # - name: deploy-container
+    #   run: 
+    #     make deploy-container
 
 
 
