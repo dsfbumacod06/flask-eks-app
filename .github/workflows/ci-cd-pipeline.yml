@@ -117,38 +117,38 @@ jobs:
         echo "$(cat infra-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $GITHUB_ENV
         echo "$(cat infra-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
         echo "$(cat image-artifact.txt | grep 'FLASK_IMAGE')" >> $GITHUB_ENV
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION_VALUE }}
-    - name: Get kubectl
-      run: |
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-        echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        kubectl version --client
-    - name: Initialize kubeconfig
-      run: 
-        aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
-    - name: Create Manifests
-      run: |
-        echo $RDS_ENDPOINT
-        echo $FLASK_IMAGE
-        echo $EKS_CLUSTER_NAME
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: ${{ secrets.AWS_REGION_VALUE }}
+    # - name: Get kubectl
+    #   run: |
+    #     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    #     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+    #     echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+    #     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    #     kubectl version --client
+    # - name: Initialize kubeconfig
+    #   run: 
+    #     aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
+    # - name: Create Manifests
+    #   run: |
+    #     echo $RDS_ENDPOINT
+    #     echo $FLASK_IMAGE
+    #     echo $EKS_CLUSTER_NAME
 
-        sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+    #     sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
 
-        cat ./deployment/manifests/external-service.yaml
+    #     cat ./deployment/manifests/external-service.yaml
 
-        sed "s|IMAGE.NAME|$FLASK_IMAGE|g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
+    #     sed "s|IMAGE.NAME|$FLASK_IMAGE|g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
 
-        cat ./deployment/manifests/deployment.yaml
-    - name: deploy-container
-      run: 
-        make deploy-container
+    #     cat ./deployment/manifests/deployment.yaml
+    # - name: deploy-container
+    #   run: 
+    #     make deploy-container
 
 
 
