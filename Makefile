@@ -20,4 +20,4 @@ push-image:
 	docker push $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)
 
 deploy-container:
-# Add a command line to deploy the container on the AWS EKS setup as part of infrastructure deployment
+	kubectl apply -f ./deployment/manifests
