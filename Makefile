@@ -1,4 +1,4 @@
-.PHONY: deploy-infra build-image push-image get-kubectl create-manifests deploy-container
+.PHONY: deploy-infra build-image push-image deploy-container
 
 deploy-infra:
 	terraform -chdir=infra/terraform init

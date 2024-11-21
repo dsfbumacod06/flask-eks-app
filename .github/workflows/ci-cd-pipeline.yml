@@ -33,11 +33,9 @@ jobs:
       run: |
         make deploy-infra
         CLUSTER_NAME=$(cat deployment-results.txt | grep 'cluster_name' | sed 's/cluster_name = "//' | sed 's/"//')
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME"
         echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > workflow-artifact.txt
 
         DB_ENDPOINT="$(cat deployment-results.txt | grep 'rds_postsgres_db_endpoint' | sed 's/rds_postsgres_db_endpoint = "//' | sed 's/:5432"//')"
-        echo "RDS_ENDPOINT=$DB_ENDPOINT"
         echo "RDS_ENDPOINT=$DB_ENDPOINT" >> workflow-artifact.txt
     - name: Upload infra artifact
       uses: actions/upload-artifact@v3
@@ -86,7 +84,6 @@ jobs:
       run: | 
         make push-image
         IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
-        echo "IMAGE_NAME=$IMAGE_NAME"
         echo "IMAGE_NAME=$IMAGE_NAME" >> workflow-artifact.txt
     - name: Upload image artifact
       uses: actions/upload-artifact@v3
@@ -115,8 +112,6 @@ jobs:
         echo "$(cat workflow-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $GITHUB_ENV
         echo "$(cat workflow-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
         echo "$(cat workflow-artifact.txt | grep 'IMAGE_NAME')" >> $GITHUB_ENV
-
-
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
@@ -139,7 +134,6 @@ jobs:
         echo "$IMAGE_NAME"
         sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
         sed "s|IMAGE.NAME|$IMAGE_NAME|g" ./deployment/manifests-templates/deployment.yaml > ./deployment/manifests/deployment.yaml
-
     - name: deploy-container
       run: 
         make deploy-container
