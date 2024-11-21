@@ -39,28 +39,23 @@ jobs:
         echo "view stage 1"
         echo $( \
           cat deployment-results.txt \
-          | grep -v '::debug::' \
-          | grep -v '::set-output name=stdout::' \
           | grep 'cluster_name' \
         )
         echo "view stage 2"
         echo $( \
           cat deployment-results.txt \
-          | grep -v '::debug::' \
-          | grep -v '::set-output name=stdout::' \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
         )
         echo "view stage 3"
         echo $( \
           cat deployment-results.txt \
-          | grep -v '::debug::' \
-          | grep -v '::set-output name=stdout::' \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
           | sed 's/"//' \
         )
-
+# | grep -v '::debug::' \
+# | grep -v '::set-output name=stdout::' \
 
     # - name: Create artifact file
     #   run: |

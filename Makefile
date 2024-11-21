@@ -11,7 +11,10 @@ deploy-infra:
 	-var="rds_db_name=$(DB_NAME)" \
 	-var="rds_username=$(DB_USERNAME)" \
 	-var="rds_password=$(DB_PASSWORD)" \
-	-auto-approve | tee deployment-results.txt
+	-auto-approve \
+	| grep -v '::debug::' \
+	| grep -v '::set-output name=stdout::' \
+	| tee deployment-results.txt
 
 build-image:
 	docker build -t $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)  ./app
