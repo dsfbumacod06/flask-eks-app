@@ -63,7 +63,7 @@ jobs:
     - name: Verify Infra Outputs
       run: |
         echo ${{ needs.deploy-infra.outputs.EKS_CLUSTER_NAME }}
-        echo ${{ needs.deploy-infra.outputs.EKS_CLUSTER_NAME }}
+        echo ${{ needs.deploy-infra.outputs.RDS_ENDPOINT }}
     # - name: Download artifact
     #   uses: actions/download-artifact@v3
     #   with:
