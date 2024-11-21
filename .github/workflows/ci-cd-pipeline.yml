@@ -40,12 +40,14 @@ jobs:
         echo $( \
           cat deployment-results.txt \
           | grep -v '::debug::' \
+          | grep -v '::set-output name=stdout::' \
           | grep 'cluster_name' \
         )
         echo "view stage 2"
         echo $( \
           cat deployment-results.txt \
           | grep -v '::debug::' \
+          | grep -v '::set-output name=stdout::' \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
         )
@@ -53,6 +55,7 @@ jobs:
         echo $( \
           cat deployment-results.txt \
           | grep -v '::debug::' \
+          | grep -v '::set-output name=stdout::' \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
           | sed 's/"//' \
