@@ -115,7 +115,8 @@ jobs:
     - name: Create Manifests
       run: |
         echo ${{ needs.deploy-infra.outputs.RDS_ENDPOINT }}
-        echo $${{ needs.deploy-image.outputs.FLASK_IMAGE }}
+        echo ${{ needs.deploy-image.outputs.FLASK_IMAGE }}
+        echo ${{ needs.deploy-infra.outputs.EKS_CLUSTER_NAME }}
 
         sed "s/RDS.ENDPOINT/${{ needs.deploy-infra.outputs.RDS_ENDPOINT }}/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
 
