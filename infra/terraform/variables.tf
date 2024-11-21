@@ -18,3 +18,11 @@ variable "project" {
   default = "flask-eks-app"
 }
 
+# RDS DB Variables
+
+variable "rds_db_name"  {}
+
+variable "rds_username" {}
+
+variable "rds_password" {}
+

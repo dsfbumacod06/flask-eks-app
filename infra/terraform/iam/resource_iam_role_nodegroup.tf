@@ -1,6 +1,6 @@
 # IAM Role for EKS Node Group 
 resource "aws_iam_role" "eks_nodegroup_role" {
-  name = "${local.resource_prefix}-eks-ng-role"
+  name = var.iam_ng_role_name
   assume_role_policy = jsonencode({
     Statement = [{
       Action = "sts:AssumeRole"

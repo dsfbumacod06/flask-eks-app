@@ -1,5 +1,5 @@
 resource "aws_security_group" "rds_postgres_sg" {
-  name = "${local.resource_prefix}-${var.rds_database_security_group_name}"
+  name = var.rds_database_security_group_name
   vpc_id = module.vpc.vpc_id
 
   ingress {
@@ -18,7 +18,7 @@ resource "aws_security_group" "rds_postgres_sg" {
 }
 
 module "rds" {
-  identifier = "${local.resource_prefix}-${var.rds_name}"
+  identifier = var.rds_name
   source  = "terraform-aws-modules/rds/aws"
   engine = var.rds_engine
   engine_version = var.rds_postgres_version
@@ -37,7 +37,6 @@ module "rds" {
   manage_master_user_password = var.rds_manage_password
 
   depends_on = [
-    aws_security_group.rds_postgres_sg,
-    module.vpc
+    aws_security_group.rds_postgres_sg
   ]
 }
