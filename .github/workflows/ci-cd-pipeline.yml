@@ -36,45 +36,50 @@ jobs:
     - name: verify values
       run: |
         cat deployment-results.txt
-        echo "view cluster name"
+        echo "view stage 1"
+        echo $( \
+          cat deployment-results.txt \
+          | grep 'cluster_name' \
+        )
+        echo "view stage 2"
+        echo $( \
+          cat deployment-results.txt \
+          | grep 'cluster_name' \
+          | sed 's/cluster_name = "//' \
+        )
+        echo "view stage 3"
         echo $( \
           cat deployment-results.txt \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
           | sed 's/"//' \
         )
-        echo "view endpoint"
-        echo $( \
-          cat deployment-results.txt \
-          | grep 'rds_postsgres_db_endpoint' \
-          | sed 's/rds_postsgres_db_endpoint = "//' \
-          | sed 's/:5432"//' \
-        )
-          
-    - name: Create artifact file
-      run: |
-        CLUSTER_NAME=$( \
-          cat deployment-results.txt \
-          | grep 'cluster_name' \
-          | sed 's/cluster_name = "//' \
-          | sed 's/"//' \
-        )
 
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> infra-artifact.txt;
 
-        DB_ENDPOINT=$( \
-          cat deployment-results.txt \
-          | grep 'rds_postsgres_db_endpoint' \
-          | sed 's/rds_postsgres_db_endpoint = "//' \
-          | sed 's/:5432"//' \
-        )
+    # - name: Create artifact file
+    #   run: |
+    #     CLUSTER_NAME=$( \
+    #       cat deployment-results.txt \
+    #       | grep 'cluster_name' \
+    #       | sed 's/cluster_name = "//' \
+    #       | sed 's/"//' \
+    #     )
 
-        echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;
-    - name: Upload infra artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: infra-artifact
-        path: infra-artifact.txt
+    #     echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> infra-artifact.txt;
+
+    #     DB_ENDPOINT=$( \
+    #       cat deployment-results.txt \
+    #       | grep 'rds_postsgres_db_endpoint' \
+    #       | sed 's/rds_postsgres_db_endpoint = "//' \
+    #       | sed 's/:5432"//' \
+    #     )
+
+    #     echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;
+    # - name: Upload infra artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: infra-artifact
+    #     path: infra-artifact.txt
 
   # deploy-image:
   #   name: Deploy Image To ECR
