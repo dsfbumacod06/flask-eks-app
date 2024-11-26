@@ -52,21 +52,27 @@ module "rds" {
   rds_db_name = var.rds_db_name
   rds_username = var.rds_username
   rds_password = var.rds_password
-  rds_name = "${local.resource_prefix}-tf-rds-2"
+  rds_name = "${local.resource_prefix}-tf-rds"
   rds_engine = "postgres"
   rds_postgres_version = "14"
   rds_instance_class  = "db.t3.micro" 
   rds_storage_size = 20
   rds_publicly_accessible = true
   rds_port = var.rds_port
-  rds_database_security_group_name = "${local.resource_prefix}-db-sg"
   rds_family = "postgres14"
   rds_major_engine_version = "14"
   rds_muti_az = false
   rds_manage_password = false
   vpc_id = module.vpc.vpc_id
   database_subnet_group_name = module.vpc.db_subnet_name
+  vpc_security_group_ids = [module.security_groups.rds_sg_id]
 
-  depends_on = [ module.vpc ]
+  depends_on = [ module.vpc, module.security_groups ]
 }
 
+module "security_groups" {
+  source = "./security-groups"
+  rds_database_security_group_name = "${local.resource_prefix}-db-sg"
+  vpc_id = module.vpc.vpc_id
+  rds_port = var.rds_port
+}
