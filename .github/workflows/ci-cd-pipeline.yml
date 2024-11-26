@@ -108,8 +108,8 @@ jobs:
       uses: actions/download-artifact@v4
     - name: Extract environment values from artifacts
       run: |
-        echo "$(cat infra-artifact/infra-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $(GITHUB_ENV)
-        echo "$(cat infra-artifact/infra-artifact.txt | grep 'RDS_ENDPOINT')" >> $(GITHUB_ENV)
+        echo "$(cat infra-artifact/infra-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $GITHUB_ENV
+        echo "$(cat infra-artifact/infra-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
