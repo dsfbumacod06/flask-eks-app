@@ -37,10 +37,6 @@ jobs:
         DB_PORT: ${{ secrets.DB_PORT }}
       run: make deploy-infra
     - name: Create Infra Artifact
-      env:
-        DB_PORT: ${{ secrets.DB_PORT }}
-      run: make create-infra-artifact
-    - name: verify values
       run: |
         CLUSTER_NAME=$( \
           awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
@@ -48,84 +44,84 @@ jobs:
           | sed 's/cluster_name = "//' \
           | sed 's/"//' \
         )
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME"
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > infra-artifact.txt;
         DB_ENDPOINT=$( \
           awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
           | grep 'rds_postsgres_db_endpoint' \
           | sed 's/rds_postsgres_db_endpoint = "//' \
           | sed 's/:${{ secrets.DB_PORT }}"//' \
         )
-        echo "RDS_ENDPOINT=$DB_ENDPOINT"  
+        echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;   
     - name: Upload infra artifact
       uses: actions/upload-artifact@v4
       with:
         name: infra-artifact
         path: infra-artifact.txt
 
-  # deploy-image:
-  #   name: Deploy Image To ECR
-  #   runs-on: ubuntu-latest
-  #   needs: deploy-infra
-  #   environment: dev
-  #   defaults:
-  #     run:
-  #       shell: bash
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v4
-  #   - name: Configure AWS Credentials
-  #     uses: aws-actions/configure-aws-credentials@v4
-  #     with:
-  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #       aws-region: ${{ secrets.AWS_REGION_VALUE }}
-  #   - name: Login to Amazon ECR
-  #     id: login-ecr
-  #     uses: aws-actions/amazon-ecr-login@v1
-  #   - name: Build, and tag image to Amazon ECR
-  #     id: build-image
-  #     env:
-  #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-  #     run: 
-  #       make build-image
-  #   - name: Push image to Amazon ECR
-  #     id: push-image
-  #     env:
-  #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-  #     run: make push-image
+  deploy-image:
+    name: Deploy Image To ECR
+    runs-on: ubuntu-latest
+    needs: deploy-infra
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION_VALUE }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Build, and tag image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: 
+        make build-image
+    - name: Push image to Amazon ECR
+      id: push-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: make push-image
 
 
-  # deploy-container:
-  #   name: Deploy container to EKS
-  #   runs-on: ubuntu-latest
-  #   needs: deploy-image
-  #   environment: dev
-  #   defaults:
-  #     run:
-  #       shell: bash
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v4
-  #   - name: Install Helm
-  #     uses: azure/setup-helm@v4
-  #   - name: Download artifact
-  #     uses: actions/download-artifact@v4
-  #   - name: Extract environment values from artifacts
-  #     run: make extract-artifacts
-  #   - name: Configure AWS Credentials
-  #     uses: aws-actions/configure-aws-credentials@v4
-  #     with:
-  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #       aws-region: ${{ secrets.AWS_REGION_VALUE }}
-  #   - name: Get kubectl
-  #     run: make install-kubectl
-  #   - name: Initialize kubeconfig
-  #     run:  aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
-  #   - name: Create Manifests
-  #     run: make create-manifests
-  #   - name: deploy-container
-  #     run: make deploy-container
+  deploy-container:
+    name: Deploy container to EKS
+    runs-on: ubuntu-latest
+    needs: deploy-image
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install Helm
+      uses: azure/setup-helm@v4
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+    - name: Extract environment values from artifacts
+      run: make extract-artifacts
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION_VALUE }}
+    - name: Get kubectl
+      run: make install-kubectl
+    - name: Initialize kubeconfig
+      run:  aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
+    - name: Create Manifests
+      run: make create-manifests
+    - name: deploy-container
+      run: make deploy-container
         
 
 
