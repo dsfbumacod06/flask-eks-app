@@ -13,7 +13,7 @@ deploy-infra:
 	-var="rds_username=$(DB_USERNAME)" \
 	-var="rds_password=$(DB_PASSWORD)" \
 	var="rds_port=$(DB_PORT)" \
-	-auto-approve \
+	--auto-approve \
 	| grep -v '::debug::' \
 	| grep -v '::set-output name=stdout::' \
 	| tee deployment-results.txt
