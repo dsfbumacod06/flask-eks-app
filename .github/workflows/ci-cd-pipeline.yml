@@ -146,6 +146,7 @@ jobs:
         aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
     - name: Create Manifests
       run: |
+        mkdir ./deployment/manifests
         sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
     - name: deploy-container
       run: |
