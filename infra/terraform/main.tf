@@ -22,20 +22,32 @@ module "eks" {
   cluster_endpoint_private_access = false
   cluster_endpoint_public_access = true
   cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"] // all - for dev only
-  cluster_role_arn = module.iam_cluster_roles.cluster_role_arn
+  cluster_role_arn = module.iam_cluster_role.role_arn
   vpc_public_subnets = module.vpc.vpc_public_subnets
 
-  depends_on = [module.iam_cluster_roles] 
+  depends_on = [module.iam_cluster_role] 
 }
 
-module "iam_cluster_roles" {
-  source = "./iam/cluster-roles"
-  iam_cluster_role_name = "${local.resource_prefix}-eks-cluster-role"
+module "iam_cluster_role" {
+  source = "./iam"
+  iam_role_name = "${local.resource_prefix}-eks-cluster-role"
   aws_managed_roles = [
     "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy", 
     "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
   ]
-  iam_ng_role_name = "${local.resource_prefix}-eks-ng-role"
+  aws_service = "eks.amazonaws.com"
+}
+
+
+module "iam_nodegroup_role" {
+  source = "./iam"
+  iam_role_name = "${local.resource_prefix}-eks-ng-role"
+  aws_managed_roles = [
+    "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly", 
+  ]
+  aws_service = "ec2.amazonaws.com"
 }
 
 module "postgres_rds" {
@@ -70,11 +82,11 @@ module "db_security_group" {
   ingress_to_port = var.rds_port
 }
 
-module "node_groups" {
+module "node_group" {
   source = "./node-groups"
   cluster_name = module.eks.cluster_name
   vpc_public_subnets = module.vpc.vpc_public_subnets
-  node_group_role_arn = module.iam_cluster_roles.ng_role_arn
+  node_group_role_arn = module.iam_nodegroup_role.role_arn
   node_group_name ="${local.resource_prefix}-eks-ng-public"
   node_group_ami_type ="AL2_x86_64" 
   node_group_capacity_type = "ON_DEMAND"
@@ -85,5 +97,5 @@ module "node_groups" {
   node_group_scaling_desired = 2
   node_group_update_percent = 50
 
-  depends_on = [ module.eks ]
+  depends_on = [ module.eks, module.iam_nodegroup_role ]
 }
