@@ -15,8 +15,6 @@ terraform {
     region = "ap-southeast-1"
     dynamodb_table = "flask-app-state-lock"
   }
-
-  // dynamodb for state locking
 }
 
 provider "aws" {

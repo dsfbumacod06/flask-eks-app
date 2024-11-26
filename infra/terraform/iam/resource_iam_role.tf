@@ -22,12 +22,3 @@ resource "aws_iam_role_policy_attachment" "aws-managed-policies" {
   role = aws_iam_role.iam_role.name
 }
 
-# resource "aws_iam_role_policy_attachment" "eks-AmazonEKSClusterPolicy" {
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-#   role = aws_iam_role.eks_cluster_role.name
-# }
-
-# resource "aws_iam_role_policy_attachment" "eks-AmazonEKSVPCResourceController" {
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
-#   role = aws_iam_role.eks_cluster_role.name
-# }

@@ -1,4 +1,3 @@
-# EKS CLUSTER
 variable "cluster_name" {
   type = string
 }

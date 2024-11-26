@@ -49,8 +49,6 @@ jobs:
           | grep 'rds_postsgres_db_endpoint' \
           | sed 's/rds_postsgres_db_endpoint = "//' \
           | sed 's/:${{ secrets.DB_PORT }}"//'
-
-        
     - name: Create Infra Artifact
       run: |
         CLUSTER_NAME=$( \
