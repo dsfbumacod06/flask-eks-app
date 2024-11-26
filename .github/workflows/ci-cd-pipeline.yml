@@ -35,22 +35,23 @@ jobs:
         DB_USERNAME: ${{ secrets.DB_USERNAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_PORT: ${{ secrets.DB_PORT }}
+      run: make deploy-infra
+    - name: Create Infra Artifact
       run: |
-        make deploy-infra
         CLUSTER_NAME=$( \
           cat deployment-results.txt \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
           | sed 's/"//' \
         )
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> infra-artifact.txt;
+        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > infra-artifact.txt;
         DB_ENDPOINT=$( \
           cat deployment-results.txt \
           | grep 'rds_postsgres_db_endpoint' \
           | sed 's/rds_postsgres_db_endpoint = "//' \
           | sed 's/:${{ secrets.DB_PORT }}"//' \
         )
-        echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;
+        echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;    
     - name: Upload infra artifact
       uses: actions/upload-artifact@v4
       with:
