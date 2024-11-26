@@ -14,6 +14,8 @@ deploy-infra:
 		-var="rds_password=$(DB_PASSWORD)" \
 		-var="rds_port=$(DB_PORT)" \
 		--auto-approve \
+		| grep -v '::debug::' \
+		| grep -v '::set-output name=stdout::' \
 		| tee deployment-results.txt
 
 build-image:
