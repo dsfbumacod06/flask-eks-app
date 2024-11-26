@@ -69,11 +69,11 @@ jobs:
         echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;   
     - name: Verify Artifact File
       run: cat infra-artifact.txt
-    # - name: Upload infra artifact
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: infra-artifact
-    #     path: infra-artifact.txt
+    - name: Upload infra artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: infra-artifact
+        path: infra-artifact.txt
 
   # deploy-image:
   #   name: Deploy Image To ECR
