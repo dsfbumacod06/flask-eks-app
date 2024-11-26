@@ -36,6 +36,8 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_PORT: ${{ secrets.DB_PORT }}
       run: make deploy-infra
+    - name: View Infra Deployment Logs
+      run: cat deployment-results.txt
     - name: Create Infra Artifact
       run: |
         CLUSTER_NAME=$( \
