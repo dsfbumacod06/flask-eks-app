@@ -8,11 +8,12 @@ terraform {
      }
   }
 
-  // s3 for remote state management
+  // s3 for remote state management and state-locking
   backend "s3" {
     bucket = "flaskapp-tf-state-bucket"
     key = "flask-eks-app/dev/terraform.tfstate"
     region = "ap-southeast-1"
+    dynamodb_table = "flask-app-state-lock"
   }
 
   // dynamodb for state locking
