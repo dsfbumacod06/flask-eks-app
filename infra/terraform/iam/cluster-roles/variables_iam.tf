@@ -10,5 +10,10 @@ variable "iam_ng_role_name" {
   default = "ng-role"
 }
 
+variable "aws_managed_roles" {
+  type = list(string)
+  default = [ "" ]
+}
+
 
 

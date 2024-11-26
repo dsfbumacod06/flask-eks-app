@@ -1,12 +1,12 @@
-resource "aws_security_group" "rds_postgres_sg" {
-  name = var.rds_database_security_group_name
+resource "aws_security_group" "security-group" {
+  name = var.security_group_name
   vpc_id = var.vpc_id
 
   ingress {
-    from_port = var.rds_port 
-    to_port = var.rds_port
-    protocol = var.ingress_protocol
-    cidr_blocks = var.ingress_cidr
+    from_port = var.ingress_from_port
+    to_port = var.ingress_to_port
+    protocol = var.rds_ingress_protocol
+    cidr_blocks = var.rds_ingress_cidr
   }
 
   egress {
