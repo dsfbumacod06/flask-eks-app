@@ -51,10 +51,6 @@ variable "rds_port" {
   type = number
 }
 
-variable "rds_database_security_group_name" {
-  type = string
-}
-
 variable "rds_manage_password" {
   type = bool
   default = false
@@ -69,3 +65,7 @@ variable "database_subnet_group_name" {
     type = string
 }
 
+
+variable "vpc_security_group_ids" {
+  type = list(string)
+}

@@ -1,22 +1,3 @@
-resource "aws_security_group" "rds_postgres_sg" {
-  name = var.rds_database_security_group_name
-  vpc_id = var.vpc_id
-
-  ingress {
-    from_port = var.rds_port 
-    to_port = var.rds_port
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1" 
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 module "rds" {
   identifier = var.rds_name
   source  = "terraform-aws-modules/rds/aws"
@@ -29,14 +10,10 @@ module "rds" {
   password = var.rds_password 
   skip_final_snapshot = true  
   publicly_accessible = var.rds_publicly_accessible
-  vpc_security_group_ids = [aws_security_group.rds_postgres_sg.id]
+  vpc_security_group_ids = var.vpc_security_group_ids
   multi_az = var.rds_muti_az
   db_subnet_group_name = var.database_subnet_group_name
   family  = var.rds_family
   major_engine_version = var.rds_major_engine_version 
   manage_master_user_password = var.rds_manage_password
-
-  depends_on = [
-    aws_security_group.rds_postgres_sg
-  ]
 }

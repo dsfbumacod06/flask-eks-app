@@ -36,39 +36,22 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_PORT: ${{ secrets.DB_PORT }}
       run: make deploy-infra
-    - name: View Infra Deployment Logs
-      run: cat deployment-results.txt
-    - name: Verify values to be extracated
-      run: |
-        cat deployment-results.txt \
-          | grep 'cluster_name' \
-          | sed 's/cluster_name = "//' \
-          | sed 's/"//' 
-
-         cat deployment-results.txt \
-          | grep 'rds_postsgres_db_endpoint' \
-          | sed 's/rds_postsgres_db_endpoint = "//' \
-          | sed 's/:${{ secrets.DB_PORT }}"//'
-
-        
     - name: Create Infra Artifact
       run: |
         CLUSTER_NAME=$( \
-          cat deployment-results.txt \
+          awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
           | sed 's/"//' \
         )
         echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > infra-artifact.txt;
         DB_ENDPOINT=$( \
-          cat deployment-results.txt \
+          awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
           | grep 'rds_postsgres_db_endpoint' \
           | sed 's/rds_postsgres_db_endpoint = "//' \
           | sed 's/:${{ secrets.DB_PORT }}"//' \
         )
         echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;   
-    - name: Verify Artifact File
-      run: cat infra-artifact.txt
     - name: Upload infra artifact
       uses: actions/upload-artifact@v4
       with:
@@ -105,9 +88,8 @@ jobs:
       id: push-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      run: | 
-        make push-image
-        IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+      run: make push-image
+
 
   deploy-container:
     name: Deploy container to EKS
@@ -142,18 +124,12 @@ jobs:
         sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
         kubectl version --client
     - name: Initialize kubeconfig
-      run: 
-        aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
+      run:  aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
     - name: Create Manifests
-      run: |
-        mkdir ./deployment/manifests
-        sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+      run: make create-manifests
     - name: deploy-container
-      run: |
-        make deploy-container
-        helm upgrade --install obz-flask-app ./deployment/helm-charts/flask-app/ \
-        --set image.tag="$IMAGE_TAG" \
-        --wait --timeout 30s --atomic
+      run: make deploy-container
+        
 
 
 
