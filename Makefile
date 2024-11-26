@@ -7,7 +7,7 @@ deploy-infra:
 		-var="rds_db_name=$(DB_NAME)" \
 		-var="rds_username=$(DB_USERNAME)" \
 		-var="rds_password=$(DB_PASSWORD)" \
-		-var="rds_port=$(DB_PORT)"
+		-var="rds_port=$(DB_PORT)" \
 		-no-color
 	terraform -chdir=infra/terraform apply \
 		-var="rds_db_name=$(DB_NAME)" \
