@@ -57,7 +57,7 @@ module "postgres_rds" {
   rds_manage_password = false
   vpc_id = module.vpc.vpc_id
   database_subnet_group_name = module.vpc.db_subnet_name
-  vpc_security_group_ids = [module.db_security_group.rds_sg_id]
+  vpc_security_group_ids = [module.db_security_group.sg_id]
 
   depends_on = [ module.vpc, module.db_security_group ]
 }
