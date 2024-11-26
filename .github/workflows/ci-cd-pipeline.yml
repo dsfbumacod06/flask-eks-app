@@ -36,37 +36,24 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_PORT: ${{ secrets.DB_PORT }}
       run: make deploy-infra
-    - name: View Infra Deployment Logs (OUTPUT ONLY)
-      run: awk '/Outputs/{flag=1; next} flag' deployment-results.txt 
-    - name: Verify values to be extracated
-      run: |
-        awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
-          | grep 'cluster_name' \
-          | sed 's/cluster_name = "//' \
-          | sed 's/"//' 
-
-         awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
-          | grep 'rds_postsgres_db_endpoint' \
-          | sed 's/rds_postsgres_db_endpoint = "//' \
-          | sed 's/:${{ secrets.DB_PORT }}"//'
     - name: Create Infra Artifact
-      run: |
-        CLUSTER_NAME=$( \
-          cat deployment-results.txt \
-          | grep 'cluster_name' \
-          | sed 's/cluster_name = "//' \
-          | sed 's/"//' \
-        )
-        echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > infra-artifact.txt;
-        DB_ENDPOINT=$( \
-          cat deployment-results.txt \
-          | grep 'rds_postsgres_db_endpoint' \
-          | sed 's/rds_postsgres_db_endpoint = "//' \
-          | sed 's/:${{ secrets.DB_PORT }}"//' \
-        )
-        echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;   
-    - name: Verify Artifact File
-      run: cat infra-artifact.txt
+      env:
+        DB_PORT: ${{ secrets.DB_PORT }}
+      run: make create-infra-artifact
+        # CLUSTER_NAME=$( \
+        #   awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
+        #   | grep 'cluster_name' \
+        #   | sed 's/cluster_name = "//' \
+        #   | sed 's/"//' \
+        # )
+        # echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > infra-artifact.txt;
+        # DB_ENDPOINT=$( \
+        #   awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
+        #   | grep 'rds_postsgres_db_endpoint' \
+        #   | sed 's/rds_postsgres_db_endpoint = "//' \
+        #   | sed 's/:${{ secrets.DB_PORT }}"//' \
+        # )
+        # echo "RDS_ENDPOINT=$DB_ENDPOINT"  >> infra-artifact.txt;   
     - name: Upload infra artifact
       uses: actions/upload-artifact@v4
       with:
@@ -103,9 +90,8 @@ jobs:
       id: push-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      run: | 
-        make push-image
-        IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+      run: make push-image
+
 
   deploy-container:
     name: Deploy container to EKS
@@ -123,9 +109,7 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v4
     - name: Extract environment values from artifacts
-      run: |
-        echo "$(cat infra-artifact/infra-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $GITHUB_ENV
-        echo "$(cat infra-artifact/infra-artifact.txt | grep 'RDS_ENDPOINT')" >> $GITHUB_ENV
+      run: make extract-artifacts
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
@@ -133,25 +117,14 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION_VALUE }}
     - name: Get kubectl
-      run: |
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-        echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        kubectl version --client
+      run: make install-kubectl
     - name: Initialize kubeconfig
-      run: 
-        aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
+      run:  aws eks --region ${{ secrets.AWS_REGION_VALUE }} update-kubeconfig --name "$EKS_CLUSTER_NAME"
     - name: Create Manifests
-      run: |
-        mkdir ./deployment/manifests
-        sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
+      run: make create-manifests
     - name: deploy-container
-      run: |
-        make deploy-container
-        helm upgrade --install obz-flask-app ./deployment/helm-charts/flask-app/ \
-        --set image.tag="$IMAGE_TAG" \
-        --wait --timeout 30s --atomic
+      run: make deploy-container
+        
 
 
 
