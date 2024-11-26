@@ -148,7 +148,7 @@ jobs:
       run: |
         sed "s/RDS.ENDPOINT/$RDS_ENDPOINT/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
     - name: deploy-container
-      run: 
+      run: |
         make deploy-container
         helm upgrade --install obz-flask-app ./deployment/helm-charts/flask-app/ \
         --set image.tag="$IMAGE_TAG" \
