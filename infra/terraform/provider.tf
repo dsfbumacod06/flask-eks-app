@@ -8,12 +8,14 @@ terraform {
      }
   }
 
-  // must be existing
+  // s3 for remote state management
   backend "s3" {
     bucket = "flaskapp-tf-state-bucket"
     key = "flask-eks-app/dev/terraform.tfstate"
     region = "ap-southeast-1"
   }
+
+  // dynamodb for state locking
 }
 
 provider "aws" {

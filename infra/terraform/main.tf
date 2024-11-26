@@ -42,7 +42,7 @@ module "eks" {
 
 module "iam" {
   source = "./iam"
-  iam_cluster_role_name = "${local.resource_prefix}-eks-ng-role"
+  iam_cluster_role_name = "${local.resource_prefix}-eks-cluster-role"
   iam_ng_role_name = "${local.resource_prefix}-eks-ng-role"
 }
 
@@ -58,7 +58,7 @@ module "rds" {
   rds_instance_class  = "db.t3.micro" 
   rds_storage_size = 20
   rds_publicly_accessible = true
-  rds_port = 5432
+  rds_port = var.rds_port
   rds_database_security_group_name = "${local.resource_prefix}-db-sg"
   rds_family = "postgres14"
   rds_major_engine_version = "14"

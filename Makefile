@@ -6,11 +6,13 @@ deploy-infra:
 	terraform -chdir=infra/terraform plan \
 		-var="rds_db_name=$(DB_NAME)" \
 		-var="rds_username=$(DB_USERNAME)" \
-		-var="rds_password=$(DB_PASSWORD)"
+		-var="rds_password=$(DB_PASSWORD)" \
+		-var="rds_port=$(DB_PORT)"
 	terraform -chdir=infra/terraform apply \
 	-var="rds_db_name=$(DB_NAME)" \
 	-var="rds_username=$(DB_USERNAME)" \
 	-var="rds_password=$(DB_PASSWORD)" \
+	var="rds_port=$(DB_PORT)" \
 	-auto-approve \
 	| grep -v '::debug::' \
 	| grep -v '::set-output name=stdout::' \

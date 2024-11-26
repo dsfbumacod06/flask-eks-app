@@ -20,9 +20,11 @@ variable "project" {
 
 # RDS DB Variables
 
-variable "rds_db_name"  {}
+variable "rds_db_name"  { type = string }
 
-variable "rds_username" {}
+variable "rds_username" { type = string }
 
-variable "rds_password" {}
+variable "rds_password" { type = string }
+
+variable "rds_port" { type = number}
 
