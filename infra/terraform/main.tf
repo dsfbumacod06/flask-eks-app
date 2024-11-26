@@ -72,7 +72,7 @@ module "rds" {
 
 module "security_groups" {
   source = "./security-groups"
-  rds_database_security_group_name = "${local.resource_prefix}-db-sg"
+  rds_database_security_group_name = "${local.resource_prefix}-db-sg-extracted"
   vpc_id = module.vpc.vpc_id
   rds_port = var.rds_port
 }
