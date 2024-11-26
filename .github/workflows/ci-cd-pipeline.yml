@@ -152,8 +152,10 @@ jobs:
       run: |
         make deploy-container
         helm upgrade --install obz-flask-app ./deployment/helm-charts/flask-app/ \
-        --set image.tag="$IMAGE_TAG" \
+        --set image.tag="1234" \
         --wait --timeout 30s --atomic
+
+        # --set image.tag="$IMAGE_TAG" \
 
 
 
