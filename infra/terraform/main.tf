@@ -21,7 +21,7 @@ module "eks" {
   cluster_version = "1.30"
   cluster_endpoint_private_access = false
   cluster_endpoint_public_access = true
-  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"] // all - for dev only
+  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"] // for dev only
   cluster_role_arn = module.iam_cluster_role.role_arn
   vpc_public_subnets = module.vpc.vpc_public_subnets
 
