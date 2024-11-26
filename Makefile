@@ -30,21 +30,6 @@ extract-artifacts:
 	echo "$(cat infra-artifact/infra-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $(GITHUB_ENV)
 	echo "$(cat infra-artifact/infra-artifact.txt | grep 'RDS_ENDPOINT')" >> $(GITHUB_ENV)
 
-install-kubectl:
-	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-	curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-	echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-	sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-	kubectl version --client
-
-
-install-kubectl2:
-	curl -LO 'https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl'
-	curl -LO 'https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256'
-	echo '$(cat kubectl.sha256)  kubectl' | sha256sum --check
-	sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-	kubectl version --client
-
 create-manifests:
 	mkdir ./deployment/manifests
 	sed "s/RDS.ENDPOINT/$(RDS_ENDPOINT)/g" ./deployment/manifests-templates/external-service.yaml > ./deployment/manifests/external-service.yaml
