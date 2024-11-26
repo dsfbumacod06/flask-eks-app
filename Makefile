@@ -1,20 +1,4 @@
-.PHONY: deploy-infra build-image push-image extract-artifacts install-kubectl create-manifests deploy-container
-
-create-infra-artifact:
-	CLUSTER_NAME=$( \
-		awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
-		| grep 'cluster_name' \
-		| sed 's/cluster_name = "//' \
-		| sed 's/"//' \
-	)
-	echo "EKS_CLUSTER_NAME=$(CLUSTER_NAME)" > infra-artifact.txt;
-	DB_ENDPOINT=$( \
-		awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
-		| grep 'rds_postsgres_db_endpoint' \
-		| sed 's/rds_postsgres_db_endpoint = "//' \
-		| sed 's/:$(DB_PORT)"//' \
-	)
-	echo "RDS_ENDPOINT=$(DB_ENDPOINT)"  >> infra-artifact.txt;   
+.PHONY: deploy-infra build-image push-image extract-artifacts install-kubectl create-manifests deploy-container 
 
 deploy-infra:
 	terraform -chdir=infra/terraform init
@@ -35,6 +19,23 @@ deploy-infra:
 		| grep -v '::debug::' \
 		| grep -v '::set-output name=stdout::' \
 		| tee deployment-results.txt
+
+create-infra-artifact:
+	CLUSTER_NAME=$( \
+		awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
+		| grep 'cluster_name' \
+		| sed 's/cluster_name = "//' \
+		| sed 's/"//' \
+	)
+	echo "EKS_CLUSTER_NAME=$(CLUSTER_NAME)" > infra-artifact.txt;
+	DB_ENDPOINT=$( \
+		awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
+		| grep 'rds_postsgres_db_endpoint' \
+		| sed 's/rds_postsgres_db_endpoint = "//' \
+		| sed 's/:$(DB_PORT)"//' \
+	)
+	echo "RDS_ENDPOINT=$(DB_ENDPOINT)"  >> infra-artifact.txt; 
+
 
 build-image:
 	docker build -t $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)  ./app
