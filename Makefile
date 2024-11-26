@@ -1,4 +1,4 @@
-.PHONY: deploy-infra build-image push-image extract-artifacts install-kubectl  install-kubectl2 create-manifests deploy-container 
+.PHONY: deploy-infra build-image push-image create-manifests deploy-container 
 
 deploy-infra:
 	terraform -chdir=infra/terraform init
@@ -25,10 +25,6 @@ build-image:
 
 push-image:
 	docker push $(ECR_REGISTRY)/$(ECR_REPOSITORY):$(IMAGE_TAG)
-
-extract-artifacts:
-	echo "$(cat infra-artifact/infra-artifact.txt | grep 'EKS_CLUSTER_NAME')" >> $(GITHUB_ENV)
-	echo "$(cat infra-artifact/infra-artifact.txt | grep 'RDS_ENDPOINT')" >> $(GITHUB_ENV)
 
 create-manifests:
 	mkdir ./deployment/manifests
