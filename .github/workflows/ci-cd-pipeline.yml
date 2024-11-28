@@ -39,14 +39,14 @@ jobs:
     - name: Create Infra Artifact
       run: |
         CLUSTER_NAME=$( \
-          awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
+          awk '/^Outputs/{flag=1; next} flag' deployment-results.txt \
           | grep 'cluster_name' \
           | sed 's/cluster_name = "//' \
           | sed 's/"//' \
         )
         echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" > infra-artifact.txt;
         DB_ENDPOINT=$( \
-          awk '/Outputs/{flag=1; next} flag' deployment-results.txt \
+          awk '/^Outputs/{flag=1; next} flag' deployment-results.txt \
           | grep 'rds_postsgres_db_endpoint' \
           | sed 's/rds_postsgres_db_endpoint = "//' \
           | sed 's/:${{ secrets.DB_PORT }}"//' \
