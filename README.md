@@ -1,4 +1,4 @@
-# Dhoby
+# Dhoby Bumacod
 # devops-assigment
 
 ## Setup and execute an application provided in app
